@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EmbedWithTitanV2",
+      "Effect": "Allow",
+      "Action": "bedrock:InvokeModel",
+      "Resource": "arn:aws:bedrock:ap-southeast-2::foundation-model/amazon.titan-embed-text-v2:0"
+    },
+    {
+      "Sid": "UseOneVectorIndex",
+      "Effect": "Allow",
+      "Action": ["s3vectors:PutVectors", "s3vectors:QueryVectors", "s3vectors:GetVectors"],
+      "Resource": "arn:aws:s3vectors:ap-southeast-2:<account-id>:bucket/linklogic-vectors-<account-id>/index/company-names"
+    },
+    {
+      "Sid": "ReadFeedQueue",
+      "Effect": "Allow",
+      "Action": ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"],
+      "Resource": "arn:aws:sqs:ap-southeast-2:<account-id>:linklogic-feed.fifo"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+== run summary
+ records | entities 
+---------+----------
+    7780 |     5729
+(1 row)
+
+== review queue: is the suggested candidate the right entity?
+ open_reviews | suggestion_correct 
+--------------+--------------------
+          864 |                386
+(1 row)
+
+== Tata names in the sample (India)
+ entity_id | canonical_name | records 
+-----------+----------------+---------
+(0 rows)
+
+== table and index sizes
+    relname    |  size   | rows 
+---------------+---------+------
+ clean_record  | 4552 kB | 7780
+ source_record | 2032 kB | 7780
+ audit_log     | 1384 kB | 7780
+ stage         | 1248 kB | 7780
+ match_link    | 992 kB  | 7780
+ golden_entity | 608 kB  | 5729
+ run_log       | 560 kB  | 7780
+ clean_alias   | 328 kB  |  514
+ review_queue  | 208 kB  |  864
+ conc_queue    | 192 kB  | 1600
+ stage_alias   | 72 kB   |  533
+ entity_parent | 24 kB   |    0
+(12 rows)
+
+== candidate query plan
+                                   QUERY PLAN                                    
+---------------------------------------------------------------------------------
+ Limit (actual rows=10 loops=1)
+   ->  Sort (actual rows=10 loops=1)
+         Sort Key: (similarity(name_norm, 'reliance industries'::text)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         ->  Bitmap Heap Scan on clean_record (actual rows=71 loops=1)
+               Recheck Cond: (country = 'IN'::bpchar)
+               Filter: (name_norm % 'reliance industries'::text)
+               Rows Removed by Filter: 2912
+               Heap Blocks: exact=101
+               ->  Bitmap Index Scan on clean_country (actual rows=2983 loops=1)
+                     Index Cond: (country = 'IN'::bpchar)
+ Planning Time: 1.118 ms
+ Execution Time: 5.597 ms
+(13 rows)
+

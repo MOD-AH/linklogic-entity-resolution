@@ -1,0 +1,50 @@
+psql:sql/08_scale_test.sql:2: NOTICE:  table "scale_test" does not exist, skipping
+DROP TABLE
+SELECT 500000
+ANALYZE
+--- without GIN (country filter only)
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Limit (actual rows=10 loops=1)
+   ->  Gather Merge (actual rows=10 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Sort (actual rows=7 loops=3)
+               Sort Key: (similarity(name_norm, 'a1b2c3 d4e5f holdings'::text)) DESC
+               Sort Method: top-N heapsort  Memory: 25kB
+               Worker 0:  Sort Method: top-N heapsort  Memory: 25kB
+               Worker 1:  Sort Method: top-N heapsort  Memory: 25kB
+               ->  Parallel Seq Scan on scale_test (actual rows=155 loops=3)
+                     Filter: ((name_norm % 'a1b2c3 d4e5f holdings'::text) AND (country = 'IN'::bpchar))
+                     Rows Removed by Filter: 166512
+ Planning Time: 0.938 ms
+ Execution Time: 290.154 ms
+(14 rows)
+
+CREATE INDEX
+CREATE INDEX
+ANALYZE
+--- with GIN trigram index
+                                  QUERY PLAN                                   
+-------------------------------------------------------------------------------
+ Limit (actual rows=10 loops=1)
+   ->  Sort (actual rows=10 loops=1)
+         Sort Key: (similarity(name_norm, 'a1b2c3 d4e5f holdings'::text)) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         ->  Bitmap Heap Scan on scale_test (actual rows=465 loops=1)
+               Recheck Cond: (name_norm % 'a1b2c3 d4e5f holdings'::text)
+               Rows Removed by Index Recheck: 60178
+               Filter: (country = 'IN'::bpchar)
+               Rows Removed by Filter: 1860
+               Heap Blocks: exact=3677
+               ->  Bitmap Index Scan on scale_trgm (actual rows=62503 loops=1)
+                     Index Cond: (name_norm % 'a1b2c3 d4e5f holdings'::text)
+ Planning Time: 0.319 ms
+ Execution Time: 130.385 ms
+(14 rows)
+
+ gin_size | table_size 
+----------+------------
+ 19 MB    | 29 MB
+(1 row)
+

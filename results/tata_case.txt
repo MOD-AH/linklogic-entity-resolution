@@ -1,0 +1,27 @@
+INSERT 0 6
+INSERT 0 6
+ resolve_record 
+----------------
+           5730
+           5730
+           5731
+           5732
+           5730
+           5733
+(6 rows)
+
+             name_raw              | entity_id | score |  decision  
+-----------------------------------+-----------+-------+------------
+ Tata Motors Limited               |      5730 |  0.00 | new_entity
+ TATA MOTORS LTD.                  |      5730 |  1.00 | auto_merge
+ Tata Steel Limited                |      5731 |  0.00 | new_entity
+ Tata Motors Finance Ltd           |      5732 |  0.60 | new_entity
+ Tata Motor Limited                |      5730 |  0.77 | auto_merge
+ Tata Consultancy Services Limited |      5733 |  0.00 | new_entity
+(6 rows)
+
+      queued_record      |  candidate_entity   | score 
+-------------------------+---------------------+-------
+ Tata Motors Finance Ltd | Tata Motors Limited |  0.60
+(1 row)
+

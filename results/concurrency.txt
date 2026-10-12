@@ -1,0 +1,8 @@
+NOTICE:  table "conc_queue" does not exist, skipping
+      variant       | entities_created | expected | duplicates 
+--------------------+------------------+----------+------------
+ with advisory lock |              400 |      400 |          0
+ without lock       |              780 |      400 |        380
+(2 rows)
+
+elapsed lock: 1.936119000 s, nolock: .569179000 s
